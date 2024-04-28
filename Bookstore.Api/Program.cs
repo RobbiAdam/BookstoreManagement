@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddDbContext<BookstoreDBContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("BookstoreDB"));
+    opt.UseSqlite(builder.Configuration.GetConnectionString("BookstoreDB"));
 });
 
 builder.Services.AddDbContext<AuthDBContext>(opt =>

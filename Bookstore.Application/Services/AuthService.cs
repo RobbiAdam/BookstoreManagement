@@ -92,6 +92,7 @@ namespace Bookstore.Application.Services
         {
             List<Claim> claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username)
             };
 
@@ -122,5 +123,21 @@ namespace Bookstore.Application.Services
             }
             return string.Empty;
         }
+
+        private string GetCurrentUserId()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext != null)
+            {
+                var identity = httpContext.User.Identity as ClaimsIdentity;
+                if (identity != null)
+                {
+                    var userClaims = identity.Claims;
+                    return userClaims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                }
+            }
+            return string.Empty;
+        }
+
     }
 }

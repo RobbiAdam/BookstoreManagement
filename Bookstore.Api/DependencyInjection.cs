@@ -26,6 +26,9 @@ namespace Bookstore.Api
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IAuthService, AuthService>();           
 
+            services.AddScoped<ICartRepository, CartRepository>();
+            services.AddScoped<ICartService, CartService>();
+
             services.AddTransient<CreateUserRequestValidator>();            
             
             services.AddTransient<CreateGenreRequestValidator>();

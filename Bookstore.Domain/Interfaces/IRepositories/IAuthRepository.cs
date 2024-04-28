@@ -6,6 +6,7 @@ namespace Bookstore.Domain.Interfaces.IRepositories
     {
         Task Register(User user);
         Task<User> GetUserByUsername(string username);
+        Task<User> GetUserById(string id);
         Task UpdateUser(User user);
     }
 }

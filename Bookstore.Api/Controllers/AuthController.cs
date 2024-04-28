@@ -19,6 +19,10 @@ namespace Bookstore.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CreateUserRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var registrationResult = await _authService.RegisterAsync(request);
             if (!registrationResult)
             {
@@ -31,6 +35,10 @@ namespace Bookstore.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var token = await _authService.LoginAsync(request);
             if (token == null)
             {
@@ -44,6 +52,10 @@ namespace Bookstore.Api.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var result = await _authService.UpdateUserAsync(request);
 
             if (result)

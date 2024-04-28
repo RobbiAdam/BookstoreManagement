@@ -1,5 +1,4 @@
-﻿using Bookstore.Contract.Requests.ShoppingCart;
-using Bookstore.Domain.Interfaces.IServices;
+﻿using Bookstore.Domain.Interfaces.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,46 +7,73 @@ namespace Bookstore.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ShoppingCartController : ControllerBase
+    public class CartsController : ControllerBase
     {
-        private readonly IShoppingCartService _shoppingCartService;
+        private readonly ICartService _cartService;
 
-        public ShoppingCartController(IShoppingCartService shoppingCartService)
+        public CartsController(ICartService cartService)
         {
-            _shoppingCartService = shoppingCartService;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetShoppingCart()
-        {
-            var userId = User.Identity.Name;
-            var cart = await _shoppingCartService.GetShoppingCartAsync(userId);
-            return Ok(cart);
+            _cartService = cartService;
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
+        public async Task<IActionResult> AddToCart(string bookId)
         {
-            var userId = User.Identity.Name;
-            var cart = await _shoppingCartService.AddToCartAsync(userId, request);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var username = User.Identity.Name;
+            await _cartService.AddToCart(username, bookId);
+            return Ok();
+        }
+
+        [HttpDelete("remove")]
+        public async Task<IActionResult> RemoveFromCart(string bookId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var username = User.Identity.Name;
+            await _cartService.RemoveFromCart(username, bookId);
+            return Ok();
+        }
+
+        [HttpPut("update-quantity")]
+        public async Task<IActionResult> UpdateCartItemQuantity(string bookId, int quantity)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var username = User.Identity.Name;
+            await _cartService.UpdateCartItemQuantity(username, bookId, quantity);
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCart()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var username = User.Identity.Name;
+            var cart = await _cartService.GetCart(username);
             return Ok(cart);
         }
 
-        [HttpPut("{itemId}")]
-        public async Task<IActionResult> UpdateCartItemQuantity(string itemId, [FromBody] int newQuantity)
+        [HttpDelete("clear")]
+        public async Task<IActionResult> ClearCart()
         {
-            var userId = User.Identity.Name;
-            var cart = await _shoppingCartService.UpdateCartItemQuantityAsync(userId, itemId, newQuantity);
-            return Ok(cart);
-        }
-
-        [HttpDelete("{item}")]
-        public IActionResult RemoveCartItem(string item)
-        {
-            var userId = User.Identity.Name;
-            var cart = _shoppingCartService.RemoveFromCartAsync(userId, item);
-
-            return Ok(cart);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var username = User.Identity.Name;
+            await _cartService.ClearCart(username);
+            return Ok();
         }
     }
 }

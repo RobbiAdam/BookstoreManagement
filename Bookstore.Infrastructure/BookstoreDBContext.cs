@@ -13,12 +13,13 @@ namespace Bookstore.Infrastructure
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseLazyLoadingProxies()
-                .UseSqlServer();
+                .UseSqlite();
 
         public DbSet<Book> Books { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
-        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

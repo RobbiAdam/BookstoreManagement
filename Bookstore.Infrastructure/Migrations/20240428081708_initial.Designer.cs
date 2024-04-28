@@ -2,7 +2,6 @@
 using Bookstore.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -11,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bookstore.Infrastructure.Migrations
 {
     [DbContext(typeof(BookstoreDBContext))]
-    [Migration("20240427141122_entitiesAdd")]
-    partial class entitiesAdd
+    [Migration("20240428081708_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,40 +21,37 @@ namespace Bookstore.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
-                .HasAnnotation("Proxies:LazyLoading", true)
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+                .HasAnnotation("Proxies:LazyLoading", true);
 
             modelBuilder.Entity("Bookstore.Domain.Entities.Book", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Author")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("TEXT")
                         .HasDefaultValue("Anonymous");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("TEXT")
                         .HasDefaultValue("Description not available");
 
                     b.Property<string>("GenreId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<double>("Price")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("float")
+                        .HasColumnType("REAL")
                         .HasDefaultValue(0.0);
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -67,11 +63,11 @@ namespace Bookstore.Infrastructure.Migrations
             modelBuilder.Entity("Bookstore.Domain.Entities.Genre", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -81,15 +77,15 @@ namespace Bookstore.Infrastructure.Migrations
             modelBuilder.Entity("Bookstore.Domain.Entities.Inventory", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("BookId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(0);
 
                     b.HasKey("Id");
@@ -99,70 +95,69 @@ namespace Bookstore.Infrastructure.Migrations
                     b.ToTable("Inventories");
                 });
 
-            modelBuilder.Entity("Bookstore.Domain.Entities.ShoppingCart", b =>
+            modelBuilder.Entity("Bookstore.Domain.Entities.User", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Fullname")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HashPassword")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User");
+                });
+
+            modelBuilder.Entity("Cart", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ShoppingCarts");
+                    b.ToTable("Carts");
                 });
 
-            modelBuilder.Entity("Bookstore.Domain.Entities.ShoppingCartItem", b =>
+            modelBuilder.Entity("CartItem", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("BookId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CartId")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ShoppingCartId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BookId");
 
-                    b.HasIndex("ShoppingCartId");
+                    b.HasIndex("CartId");
 
-                    b.ToTable("ShoppingCartItem");
-                });
-
-            modelBuilder.Entity("Bookstore.Domain.Entities.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Fullname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HashPassword")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("Bookstore.Domain.Entities.Book", b =>
@@ -187,7 +182,7 @@ namespace Bookstore.Infrastructure.Migrations
                     b.Navigation("Book");
                 });
 
-            modelBuilder.Entity("Bookstore.Domain.Entities.ShoppingCart", b =>
+            modelBuilder.Entity("Cart", b =>
                 {
                     b.HasOne("Bookstore.Domain.Entities.User", "User")
                         .WithMany()
@@ -198,7 +193,7 @@ namespace Bookstore.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Bookstore.Domain.Entities.ShoppingCartItem", b =>
+            modelBuilder.Entity("CartItem", b =>
                 {
                     b.HasOne("Bookstore.Domain.Entities.Book", "Book")
                         .WithMany()
@@ -206,20 +201,18 @@ namespace Bookstore.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Bookstore.Domain.Entities.ShoppingCart", "ShoppingCart")
-                        .WithMany("Items")
-                        .HasForeignKey("ShoppingCartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Cart", "Cart")
+                        .WithMany("CartItems")
+                        .HasForeignKey("CartId");
 
                     b.Navigation("Book");
 
-                    b.Navigation("ShoppingCart");
+                    b.Navigation("Cart");
                 });
 
-            modelBuilder.Entity("Bookstore.Domain.Entities.ShoppingCart", b =>
+            modelBuilder.Entity("Cart", b =>
                 {
-                    b.Navigation("Items");
+                    b.Navigation("CartItems");
                 });
 #pragma warning restore 612, 618
         }

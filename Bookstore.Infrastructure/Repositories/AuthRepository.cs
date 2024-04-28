@@ -13,6 +13,11 @@ namespace Bookstore.Infrastructure.Repositories
             _context = context;
         }
 
+        public Task<User> GetUserById(string id)
+        {
+            return _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public async Task<User?> GetUserByUsername(string username)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Username == username);
