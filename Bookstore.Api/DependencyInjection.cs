@@ -2,6 +2,7 @@
 using Bookstore.Domain.Interfaces.IRepositories;
 using Bookstore.Domain.Interfaces.IServices;
 using Bookstore.Domain.Validations.Auth;
+using Bookstore.Domain.Validations.Books;
 using Bookstore.Domain.Validations.Genres;
 using Bookstore.Infrastructure.Repositories;
 using Bookstore.Infrastructure.Utils;
@@ -29,7 +30,10 @@ namespace Bookstore.Api
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartService, CartService>();
 
-            services.AddTransient<CreateUserRequestValidator>();            
+            services.AddTransient<CreateUserRequestValidator>();
+
+            services.AddTransient<CreateBookRequestValidator>();
+            services.AddTransient<UpdateBookRequestValidator>();
             
             services.AddTransient<CreateGenreRequestValidator>();
             services.AddTransient<UpdateGenreRequestValidator>();
