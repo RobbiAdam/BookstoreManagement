@@ -3,6 +3,7 @@ using System;
 using Bookstore.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bookstore.Infrastructure.Migrations
 {
     [DbContext(typeof(BookstoreDBContext))]
-    partial class BookstoreDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240429052758_AddOrderEntity")]
+    partial class AddOrderEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
