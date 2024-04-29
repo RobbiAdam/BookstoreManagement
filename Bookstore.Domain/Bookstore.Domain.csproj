@@ -14,8 +14,4 @@
     <ProjectReference Include="..\Bookstore.Contract\Bookstore.Contract.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Validations\Books\" />
-  </ItemGroup>
-
 </Project>

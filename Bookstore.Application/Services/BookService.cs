@@ -3,6 +3,7 @@ using Bookstore.Contract.Requests.Book;
 using Bookstore.Contract.Responses;
 using Bookstore.Domain.Interfaces.IRepositories;
 using Bookstore.Domain.Interfaces.IServices;
+using Bookstore.Domain.Validations.Books;
 
 namespace Bookstore.Application.Services
 {
@@ -10,15 +11,27 @@ namespace Bookstore.Application.Services
     {
         private readonly IBookRepository _bookRepository;
         private readonly IGenreRepository _genreRepository;
+        private readonly CreateBookRequestValidator _createValidations;
+        private readonly UpdateBookRequestValidator _updateValidations;
 
-        public BookService(IBookRepository bookRepository, IGenreRepository genreRepository)
+        public BookService(IBookRepository bookRepository, IGenreRepository genreRepository,
+            CreateBookRequestValidator createValidations, UpdateBookRequestValidator updateValidations)
+        
         {
             _bookRepository = bookRepository;
             _genreRepository = genreRepository;
+            _createValidations = createValidations;
+            _updateValidations = updateValidations;
         }
 
         public async Task<BookResponse> AddBookAsync(CreateBookRequest request)
         {
+            var validationResult = _createValidations.Validate(request);
+            if (!validationResult.IsValid)
+            {
+                throw new Exception(validationResult.Errors[0].ErrorMessage);
+            }
+
             var existingGenre = await _genreRepository.GetGenreByIdAsync(request.GenreId);
             if (existingGenre == null)
             {
@@ -43,6 +56,11 @@ namespace Bookstore.Application.Services
 
         public async Task<BookResponse> UpdateBookAsync(string Id, UpdateBookRequest request)
         {
+            var validationResult = _updateValidations.Validate(request);
+            if (!validationResult.IsValid)
+            {
+                throw new Exception(validationResult.Errors[0].ErrorMessage);
+            }
             var existingBook = await _bookRepository.GetBookById(Id);
             if (existingBook == null)
             {
@@ -73,7 +91,6 @@ namespace Bookstore.Application.Services
             {
                 throw new Exception("Genre not found");
             }
-
             var books = await _bookRepository.GetBooksByGenre(genre);
             return books.Select(x => x.ToResponse());
         }

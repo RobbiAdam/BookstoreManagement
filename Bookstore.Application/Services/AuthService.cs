@@ -6,6 +6,7 @@ using Bookstore.Domain.Validations.Auth;
 using Bookstore.Infrastructure.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -20,15 +21,18 @@ namespace Bookstore.Application.Services
         private readonly IConfiguration _config;
         private readonly CreateUserRequestValidator _validations;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(IAuthRepository authRepository, IPasswordHasher passwordHasher, 
-            IConfiguration config, CreateUserRequestValidator validations, IHttpContextAccessor httpContextAccessor)
+            IConfiguration config, CreateUserRequestValidator validations, IHttpContextAccessor httpContextAccessor,
+            ILogger<AuthService> logger)
         {
             _authRepository = authRepository;
             _passwordHasher = passwordHasher;
             _config = config;
             _validations = validations;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         public async Task<string> LoginAsync(LoginUserRequest request)
@@ -36,8 +40,10 @@ namespace Bookstore.Application.Services
             var user = await _authRepository.GetUserByUsername(request.Username);
             if (user == null || !_passwordHasher.VerifyPassword(request.Password, user.HashPassword))
             {
+                _logger.LogWarning("Invalid username or password");
                 return "Username or password is incorrect";
             }            
+            _logger.LogInformation($"{request.Username} Login successful");
             return GenerateJwtToken(user);
         }
 
@@ -46,12 +52,14 @@ namespace Bookstore.Application.Services
             var validationResult = _validations.Validate(request);
             if (!validationResult.IsValid)
             {
+                _logger.LogWarning("Validation failed for user with username: {Username}", request.Username);
                 throw new Exception(validationResult.Errors[0].ErrorMessage);
             }
 
             var existingUser = await _authRepository.GetUserByUsername(request.Username);
             if (existingUser != null)
             {
+                _logger.LogWarning("User with username: {Username} already exists", request.Username);
                 return false;
             }
 
@@ -62,6 +70,7 @@ namespace Bookstore.Application.Services
                 HashPassword = _passwordHasher.HashPassword(request.Password)
             };
 
+            _logger.LogInformation("Registering user with username: {Username}", request.Username);
             await _authRepository.Register(user);
             return true;
         }
@@ -72,18 +81,23 @@ namespace Bookstore.Application.Services
 
             if (user == null)
             {                
+                _logger.LogWarning("User not found");
                 return false;
             }
 
             if (!string.IsNullOrEmpty(request.NewPassword))
             {
+
                 user.HashPassword = _passwordHasher.HashPassword(request.NewPassword);
             }
 
             if (!string.IsNullOrEmpty(request.Fullname))
             {
+                _logger.LogInformation
+                    ($"Updating user with username: {user.Username} and fullname: {request.Fullname}");
                 user.Fullname = request.Fullname;
             }
+
             await _authRepository.UpdateUser(user);
             return true;
         }
